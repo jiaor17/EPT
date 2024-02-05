@@ -11,7 +11,7 @@ import utils.register as R
 from utils.nn_utils import stable_norm, std_conserve_scatter_sum, graph_to_batch_nx
 
 from .ieconv import get_ieconv_edge_feature, IEConvLayer, EfficientIEConvLayer, get_equiv_ieconv_edge_feature
-from .utils import RadialBasis, _unit_edges_from_block_edges
+from ..utils import RadialBasis, _unit_edges_from_block_edges
 
 try:
     from xformers.ops import memory_efficient_attention as attn_func

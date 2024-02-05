@@ -13,7 +13,7 @@ from torch_scatter import scatter_sum
 import utils.register as R
 from data.format import VOCAB
 
-from .GET.tools import _block_edge_dist
+from .utils import _block_edge_dist
 
 
 @dataclass
