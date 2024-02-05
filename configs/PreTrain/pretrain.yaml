@@ -1,6 +1,6 @@
 dataset:
   train:
-    max_n_vertex: 8000
+    max_n_vertex: 5000
     datasets:
       - class: MMAPDataset
         mmap_dir: ./processed/GEOM/qm9/atomH
@@ -31,9 +31,8 @@ dataset:
         approx_length: 10
         name: PDB
 
-
 dataloader:
-  max_n_vertex_per_gpu: 5000
+  max_n_vertex_per_gpu: 10000
   shuffle: true
   num_workers: 4
 
@@ -52,28 +51,35 @@ trainer:
 
     scheduler:
       class: CosineAnnealingLR
-      T_max: 10
+      T_max: 50
       eta_min: 1.0e-5
       frequency: epoch
 
 model:
   class: Denoise
-  sigma_begin: 0.01
-  sigma_end: 10
-  n_noise_level: 50
+  sigma_begin: 0.04
+  sigma_end: 0.04
+  n_noise_level: 1
+  rot_sigma_begin: 0.1
+  rot_sigma_end: 0.1
+  rot_n_noise_level: 1
   noise_type: block_rot
   pred_type: direct
 
   encoder:
-    class: XTransEncoder
+    class: XTransEncoderAct
     hidden_size: 512
-    ffn_size: 768
+    ffn_size: 512
     n_rbf: 64
-    cutoff: 7.0
+    cutoff: 10.0
     n_layers: 6
-    n_head: 4
+    n_head: 8
+    edge_size: 64
+    use_edge_feat: true
     sparse_k: 4
     pre_norm: true
+    efficient: true
+    vector_act: layernorm
 
   graph_constructor:
     class: GraphConstructor
@@ -95,8 +101,8 @@ model:
         merge: add
     edge_layers:
       - class: RadialEdge
-        cutoff: 4.0
+        cutoff: 10.0
         topo_cutoff: 1.6
         scope: both
         self_loop: true
-    edge_embed_size: 16
+    edge_embed_size: 64
