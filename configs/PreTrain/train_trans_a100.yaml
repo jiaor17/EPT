@@ -1,0 +1,102 @@
+dataset:
+  train:
+    max_n_vertex: 8000
+    datasets:
+      - class: MMAPDataset
+        mmap_dir: ./processed/GEOM/qm9/atomH
+        approx_length: 3
+        name: GEOM-QM9
+      - class: MMAPDataset
+        mmap_dir: ./processed/GEOM/drugs/atomH
+        approx_length: 3
+        name: GEOM-Drugs
+      - class: MMAPDataset
+        mmap_dir: ./processed/PCQM4M-v2/atomH
+        approx_length: 3
+        name: PCQM4M-v2
+      - class: MMAPDataset
+        mmap_dir: ./processed/PDBBind/PP
+        approx_length: 10
+        name: PDBBind-PP
+      - class: MMAPDataset
+        mmap_dir: ./processed/PDBBind/refined-set
+        approx_length: 10
+        name: PDBBind-refined-set
+      - class: MMAPDataset
+        mmap_dir: ./processed/PDBBind/v2020-other-PL
+        approx_length: 10
+        name: PDBBind-v2020-other-PL
+      - class: ProtSampleDataset
+        mmap_dir: ./processed/PDB
+        approx_length: 10
+        name: PDB
+
+
+dataloader:
+  max_n_vertex_per_gpu: 5000
+  shuffle: true
+  num_workers: 4
+
+trainer:
+  class: PreTrainer
+  config:
+    max_epoch: 50
+    save_topk: 3
+    save_dir: ./ckpts
+    patience: -1
+
+    optimizer:
+      class: AdamW
+      lr: 1.0e-4
+      weight_decay: 0
+
+    scheduler:
+      class: CosineAnnealingLR
+      T_max: 10
+      eta_min: 1.0e-5
+      frequency: epoch
+
+model:
+  class: Denoise
+  sigma_begin: 0.01
+  sigma_end: 10
+  n_noise_level: 50
+  noise_type: block_rot
+  pred_type: direct
+
+  encoder:
+    class: XTransEncoder
+    hidden_size: 512
+    ffn_size: 768
+    n_rbf: 64
+    cutoff: 7.0
+    n_layers: 6
+    n_head: 4
+    sparse_k: 4
+    pre_norm: true
+
+  graph_constructor:
+    class: GraphConstructor
+    node_layers:
+      - class: ContinuousEmbedding
+        num_classes: 121
+        embed_size: 512
+        level: unit
+      - class: ContinuousEmbedding
+        num_classes: 142
+        embed_size: 512
+        level: block
+      - class: PositionEncoding
+        max_position: 14
+        embed_size: 512
+        merge: add
+        level: unit
+      - class: ScatterBlockFeatures
+        merge: add
+    edge_layers:
+      - class: RadialEdge
+        cutoff: 4.0
+        topo_cutoff: 1.6
+        scope: both
+        self_loop: true
+    edge_embed_size: 16

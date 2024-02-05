@@ -1,0 +1,6 @@
+__pycache__
+**.cif
+.idea/
+**.mif25
+data_split
+notebooks
