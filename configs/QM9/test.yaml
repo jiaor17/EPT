@@ -1,0 +1,17 @@
+task: QM9
+
+dataset:
+  train:
+    class: QM9Dataset
+    mmap_dir: /GLOBALFS/nscc-gz_pinchen3/jr/medical/qm9_v2/atomH/train
+    property: homo
+  test:
+    class: QM9Dataset
+    mmap_dir: /GLOBALFS/nscc-gz_pinchen3/jr/medical/qm9_v2/atomH/test
+    property: homo
+
+dataloader:
+  batch_size: 512
+  num_workers: 4
+  
+norm_type: mad

@@ -1,0 +1,93 @@
+dataset:
+  train:
+    class: LBADataset
+    mmap_dir: ./processed/LBA/split-by-sequence-identity-30/train
+  valid:
+    class: LBADataset
+    mmap_dir: ./processed/LBA/split-by-sequence-identity-30/val
+
+dataloader:
+  batch_size: 16
+  shuffle: true
+  num_workers: 4
+
+trainer:
+  class: LBATrainer
+  config:
+    max_epoch: 15
+    save_topk: 5
+    save_dir: ./ckpts/LBA/ID30
+    loss_type: L2
+    patience: -1
+    norm_type: mad
+
+    optimizer:
+      class: Adam
+      lr: 1.0e-4
+      weight_decay: 0
+    
+    scheduler:
+      class: ReduceLROnPlateau
+      factor: 0.8
+      patience: 5
+      min_lr: 1.0e-7
+      frequency: val_epoch
+
+
+model:
+  class: PredictorNNNModel
+  sigma_begin: 0.04
+  sigma_end: 0.04
+  n_noise_level: 1
+  rot_sigma_begin: 0.1
+  rot_sigma_end: 0.1
+  rot_n_noise_level: 1
+  noise_type: none
+  agg_type: graph
+  denoise_loss_scale: 0.1
+
+
+  encoder:
+    class: XTransEncoderAct
+    hidden_size: 512
+    ffn_size: 512
+    n_rbf: 64
+    cutoff: 10.0
+    n_layers: 6
+    n_head: 8
+    edge_size: 64
+    use_edge_feat: true
+    sparse_k: 4
+    pre_norm: true
+    efficient: true
+    vector_act: layernorm
+    local_mask: true
+
+  graph_constructor:
+    class: GraphConstructor
+    node_layers:
+      - class: ContinuousEmbedding
+        num_classes: 121
+        embed_size: 512
+        level: unit
+      - class: ContinuousEmbedding
+        num_classes: 142
+        embed_size: 512
+        level: block
+      - class: PositionEncoding
+        max_position: 14
+        embed_size: 512
+        merge: add
+        level: unit
+        omit_mol: false
+      - class: ScatterBlockFeatures
+        merge: add
+    edge_layers:
+      - class: RadialEdge
+        cutoff: 10.0
+        topo_cutoff: 1.6
+        scope: both
+        self_loop: true
+    edge_embed_size: 64
+
+pretrain_ckpt: null

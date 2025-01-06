@@ -165,3 +165,104 @@ class MultipackDistributedBatchSampler(Sampler):
 
     def efficiency(self):
         return self.eff_total_used / self.eff_total_slots
+
+
+class MultipackDistributedBatchSamplerHybrid(Sampler):
+    """Unpadded length sampling using Multipack.
+       Approximate (at most ~1.22x) the optimal solution of the identical-machines scheduling problem, which is NP-hard."""
+    
+    def __init__(
+        self,
+        batch_max_length: int,
+        lengths: List[int],
+        num_replicas: Optional[int] = None,
+        rank: Optional[int] = None,
+        seed: int = 0,
+        min_max_ratio: int = 200
+    ):
+        # Get rank
+        if num_replicas is None:
+            if not dist.is_available():
+                raise RuntimeError("Requires distributed package to be available")
+            num_replicas = dist.get_world_size()
+        if rank is None:
+            if not dist.is_available():
+                raise RuntimeError("Requires distributed package to be available")
+            rank = dist.get_rank()
+
+        self.num_replicas = num_replicas
+        self.rank = rank
+        self.seed = seed
+
+        self.batch_max_length = batch_max_length
+        self.lengths = lengths
+        assert isinstance(self.lengths, np.ndarray)
+
+        self.epoch = 0
+
+        # statistics
+        self.eff_total_used = 0
+        self.eff_total_slots = 0
+        self.min_max_ratio = min_max_ratio
+
+
+    def set_epoch(self, epoch: int):
+        self.epoch = epoch
+
+    def generate_batches(self, set_stats=False):
+
+        small = np.where(self.lengths <= self.min_max_ratio)[0]
+        large = np.where(self.lengths > self.min_max_ratio)[0]
+        # indices = np.random.default_rng(seed=self.seed + self.epoch).permutation(len(self.lengths))
+        indices_small = np.random.default_rng(seed=self.seed + self.epoch).permutation(len(small))
+        indices_large = np.random.default_rng(seed=self.seed + self.epoch).permutation(len(large))
+        indices_small = small[indices_small]
+        indices_large = large[indices_large]
+
+        lengths_small = self.lengths[indices_small]
+        lengths_cumsum_small = np.cumsum(lengths_small)
+        batches_small, total_used_small, total_slots_small = allocate(lengths=lengths_small,
+                                                                    lengths_cumsum=lengths_cumsum_small,
+                                                                    rank=self.rank,
+                                                                    c=self.batch_max_length,
+                                                                    n=self.num_replicas)  
+        batches_small = [indices_small[batch] for batch in batches_small]
+
+        lengths_large = self.lengths[indices_large]
+        lengths_cumsum_large = np.cumsum(lengths_large)
+        batches_large, total_used_large, total_slots_large = allocate(lengths=lengths_large,
+                                                                    lengths_cumsum=lengths_cumsum_large,
+                                                                    rank=self.rank,
+                                                                    c=self.batch_max_length,
+                                                                    n=self.num_replicas)  
+        batches_large = [indices_large[batch] for batch in batches_large]
+
+        batches = batches_small + batches_large
+
+        indices = np.random.default_rng(seed=self.seed + self.epoch).permutation(len(batches))
+
+        batches = [batches[i] for i in indices]
+
+
+        # statistics
+        if set_stats:
+            self.eff_total_used += total_used_large
+            self.eff_total_slots += total_slots_large
+            self.eff_total_used += total_used_small
+            self.eff_total_slots += total_slots_small
+        
+        return batches
+    
+    def __iter__(self):
+        batches = self.generate_batches(set_stats=True)
+        return iter(batches)
+
+    def __len__(self):
+        return self.num_batches()
+
+    def num_batches(self):
+        batches = self.generate_batches()
+        return len(batches)
+
+    def efficiency(self):
+        return self.eff_total_used / self.eff_total_slots

@@ -384,8 +384,6 @@ if __name__ == '__main__':
     n_layers = 3
     device = torch.device('cuda:0')
 
-    # d_hidden, d_ffn, n_heads, n_layers, n_rbf, d_edge, cutoff=7.0, act_fn=nn.SiLU(), layer_norm = 'pre', residual = True, sparse_k=3, svd_k=128
-
     model = Transformer(d_hidden, d_ffn, n_heads, n_layers, n_rbf, d_edge=d_edge, use_ieconv=True, use_edge_feat=True, efficient_ieconv=True, ieconv_share_edge_feat=False)
     model.to(device)
     model.eval()
@@ -415,7 +413,6 @@ if __name__ == '__main__':
     unit_batch_id = batch_id[block_id]
     Z[unit_batch_id == 0] = torch.matmul(Z[unit_batch_id == 0], Q1) + t1
     Z[unit_batch_id == 1] = torch.matmul(Z[unit_batch_id == 1], Q2) + t2
-    # Z = torch.matmul(Z, Q) + t
 
     H2, V2 = model(H, Z, block_id, batch_id, src_dst, edge_attr)
 

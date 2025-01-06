@@ -1,0 +1,87 @@
+dataset:
+  train:
+    class: QM9Dataset
+    mmap_dir: ./processed/QM9/atomH/train
+    property: homo
+  valid:
+    class: QM9Dataset
+    mmap_dir: ./processed/QM9/atomH/valid
+    property: homo
+
+dataloader:
+  batch_size: 64
+  shuffle: true
+  num_workers: 4
+
+trainer:
+  class: QM9Trainer
+  config:
+    max_epoch: 1000
+    save_topk: 3
+    save_dir: ./ckpts/QM9
+    loss_type: L1
+    patience: -1
+    version: 0
+
+    optimizer:
+      class: AdamW
+      lr: 5.0e-5
+      weight_decay: 0
+
+    scheduler:
+      class: ReduceLROnPlateau
+      factor: 0.8
+      patience: 15
+      min_lr: 1.0e-7
+      frequency: val_epoch
+
+model:
+  class: PredictorNNDModel
+  sigma_begin: 0.04
+  sigma_end: 0.04
+  n_noise_level: 1
+  rot_sigma_begin: 0.1
+  rot_sigma_end: 0.1
+  rot_n_noise_level: 1
+  noise_type: block_rot
+  reduce_type: sum_unit
+  denoise_loss_scale: 0.1
+
+
+  encoder:
+    class: XTransEncoderAct
+    hidden_size: 512
+    ffn_size: 512
+    n_rbf: 64
+    cutoff: 10.0
+    n_layers: 6
+    n_head: 8
+    edge_size: 64
+    use_edge_feat: true
+    sparse_k: 4
+    pre_norm: true
+    efficient: true
+    vector_act: layernorm
+
+  graph_constructor:
+    class: GraphConstructor
+    node_layers:
+      - class: ContinuousEmbedding
+        num_classes: 121
+        embed_size: 512
+        level: unit
+      - class: ContinuousEmbedding
+        num_classes: 142
+        embed_size: 512
+        level: block
+      - class: ScatterBlockFeatures
+        merge: add
+    edge_layers:
+      - class: FullyConnectEdge
+        topo_cutoff: 1.6
+        scope: both
+        self_loop: true
+    edge_embed_size: 64
+
+
+pretrain_ckpt: null

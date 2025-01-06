@@ -1,0 +1,15 @@
+task: LBA
+
+dataset:
+  train:
+    class: LBADataset
+    mmap_dir: ./processed/LBA/split-by-sequence-identity-30/train
+  test:
+    class: LBADataset
+    mmap_dir: ./processed/LBA/split-by-sequence-identity-30/test
+
+dataloader:
+  batch_size: 16
+  num_workers: 4
+
+norm_type: mad

@@ -1,0 +1,80 @@
+dataset:
+  train:
+    class: MSPDataset2
+    mmap_dir: ./processed/MSP/train
+  valid:
+    class: MSPDataset2
+    mmap_dir: ./processed/MSP/val
+
+dataloader:
+  batch_size: 16
+  shuffle: true
+  num_workers: 2
+
+trainer:
+  class: MSPTrainer2
+  config:
+    max_epoch: 10
+    save_topk: 2
+    save_dir: ./ckpts/MSP
+    patience: 10
+    grad_interval: 1
+    metric_min_better: false
+
+    optimizer:
+      class: AdamW
+      lr: 0.00001
+      weight_decay: 0
+
+    scheduler:
+      class: ReduceLROnPlateau
+      factor: 0.6
+      patience: 5
+      mode: max
+      frequency: val_epoch
+      min_lr: 5.0e-6
+
+model:
+  class: PairClassifier
+  n_class: 2
+
+  encoder:
+    class: XTransEncoderAct
+    cutoff: 10.0
+    edge_size: 64
+    ffn_size: 512
+    hidden_size: 512
+    n_head: 8
+    n_layers: 6
+    n_rbf: 64
+    sparse_k: 4
+    use_edge_feat: true
+    vector_act: layernorm
+    pre_norm: true
+    efficient: false
+
+  graph_constructor:
+    class: GraphConstructor
+    node_layers:
+      - class: ContinuousEmbedding
+        num_classes: 121
+        embed_size: 512
+        level: unit
+      - class: ContinuousEmbedding
+        num_classes: 142
+        embed_size: 512
+        level: block
+      - class: PositionEncoding
+        max_position: 14
+        embed_size: 512
+        merge: add
+        level: unit
+      - class: ScatterBlockFeatures
+        merge: add
+    edge_layers:
+      - class: RadialEdge
+        cutoff: 10.0
+        topo_cutoff: 1.6
+        scope: both
+        self_loop: true
+    edge_embed_size: 64

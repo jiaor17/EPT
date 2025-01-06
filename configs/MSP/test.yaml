@@ -1,0 +1,13 @@
+task: MSP
+
+dataset:
+  train:
+    class: MSPDataset2
+    mmap_dir: ./processed/MSP/train
+  test:
+    class: MSPDataset2
+    mmap_dir: ./processed/MSP/test
+
+dataloader:
+  batch_size: 16
+  num_workers: 4

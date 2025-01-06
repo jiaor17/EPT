@@ -41,7 +41,7 @@ trainer:
   config:
     max_epoch: 50
     save_topk: 3
-    save_dir: ./ckpts
+    save_dir: ./ckpts/pretrain
     patience: -1
 
     optimizer:
