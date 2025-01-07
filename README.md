@@ -28,21 +28,24 @@ One can preprocess the above raw data into LMDB format via the following scripts
 
 ```bash
 # GEOM
-python -m scripts.process_data.process_GEOM.py \
+python -m scripts.process_data.process_GEOM \
     --base_path <rdkit_dir> --dataset qm9 \
     --out_dir ./processed/GEOM --using_hrdrogen
-python -m scripts.process_data.process_GEOM.py \
+python -m scripts.process_data.process_GEOM \
     --base_path <rdkit_dir> --dataset drugs \
     --out_dir ./processed/GEOM --using_hrdrogen
 # PCQM4Mv2
-python -m scripts.process_data.process_GEOM.py \
+python -m scripts.process_data.process_GEOM \
     --sdf_file <sdf_dir> \
     --out_dir ./processed/PCQM4M-v2 --using_hrdrogen
 # PDB
-TODO
+python -m scripts.process_data.process_PDB_monomer \
+	--pdb_dir <pdb_dir> \
+	--out_dir ./processed/PDB
 # PDBBind
-TODO
-
+python -m scripts.process_data.process_PDBBind \
+	--data_dir <data_dir> \
+	--out_dir ./processed/PDBBind
 ```
 
 #### Downstream Data
@@ -57,7 +60,13 @@ python -m scripts.process_data.process_LBA.py \
 ```
 
 - MSP
-  TODO
+  One can access the raw data of MSP via this [link](https://zenodo.org/records/4962515) and process the data by
+
+```bash
+python -m scripts.process_data.process_MSP \
+	--base_path <splits_dir>
+	--out_dir ./processed/MSP
+```
 - MPP
   One can acquire the processed QM9 data via the following script. Raw data will be downloaded automatedly.
 
