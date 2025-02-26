@@ -21,8 +21,8 @@ Assets for downloading pretraining datasets are listed as follows.
   * [GEOM](https://dataverse.harvard.edu/api/access/datafile/4327252)
   * [PCQM4Mv2](http://ogb-data.stanford.edu/data/lsc/pcqm4m-v2-train.sdf.tar.gz)
 * Proteins and Complexes
-  * PDB
-  * PDBBind
+  * PDB(official downloading [script](https://files.wwpdb.org/pub/pdb/software/rsyncPDB.sh))
+  * [PDBBind](http://www.pdbbind.org.cn/download.php)
 
 One can preprocess the above raw data into LMDB format via the following scripts.
 
