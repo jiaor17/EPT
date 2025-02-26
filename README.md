@@ -82,6 +82,8 @@ python -m scripts.process_data.process_QM9.py \
 GPU=0,1,2,3,4,5,6,7 bash execute/pretrain.sh configs/PreTrain/pretrain.yaml
 ```
 
+The pretrained checkpoint is available at this [google drive](https://drive.google.com/drive/folders/1ISCsnXss6YueYUvAIiR4wpm3k0TGjb44?usp=sharing).
+
 ### Finetune on Downstream Tasks
 
 ```bash
