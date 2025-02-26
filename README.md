@@ -1,6 +1,6 @@
-# An Equivalent Pretrained Transformer for Unified 3D Molecular Representation Learning
+# An Equivariant Pretrained Transformer for Unified 3D Molecular Representation Learning
 
-Source code for "An Equivalent Pretrained Transformer for Unified 3D Molecular Representation Learning".
+Source code for "An Equivariant Pretrained Transformer for Unified 3D Molecular Representation Learning".
 
 ### Setup
 
