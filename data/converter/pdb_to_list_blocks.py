@@ -62,6 +62,8 @@ def pdb_to_list_blocks(
                 continue  # the solution (e.g. H_EDO (EDO))
             if abrv == 'MSE':
                 abrv = 'MET'  # MET is usually transformed to MSE for structural analysis
+            if abrv in ['A', 'G', 'C', 'U']:
+                abrv = 'R-' + abrv # RNA
             symbol = VOCAB.abrv_to_symbol(abrv)
                 
             # filter Hs because not all data include them

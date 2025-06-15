@@ -55,17 +55,22 @@ class MoleculeVocab:
 
         sms = [(e.lower(), e.upper()) for e in chemical_symbols]
 
+        bases = [ # bases for RNA/DNA
+                ('DA', 'DA'), ('DG', 'DG'), ('DC', 'DC'), ('DT', 'DT'), # DNA
+                ('R-A', 'R-A'), ('R-G', 'R-G'), ('R-C', 'R-C'), ('R-U', 'R-U')      # RNA
+        ]
+
         self.atom_pad, self.atom_mask, self.atom_global = 'pad', 'msk', 'glb' # Avoid conflict with atom P
         self.atom_pos_pad, self.atom_pos_mask, self.atom_pos_global = 'pad', 'msk', 'glb'
         self.atom_pos_sm = 'sml'  # small molecule
 
         # block level vocab
-        self.idx2block = specials + aas + sms 
+        self.idx2block = specials + aas + sms + bases
         self.symbol2idx, self.abrv2idx = {}, {}
         for i, (symbol, abrv) in enumerate(self.idx2block):
             self.symbol2idx[symbol] = i
             self.abrv2idx[abrv] = i
-        self.special_mask = [1 for _ in specials] + [0 for _ in aas] + [0 for _ in sms]
+        self.special_mask = [1 for _ in specials] + [0 for _ in aas] + [0 for _ in sms] + [0 for _ in bases]
 
 
         # atom level vocab
@@ -153,6 +158,9 @@ class MoleculeVocab:
 
     def get_num_block_type(self):
         return len(self.special_mask) - sum(self.special_mask)
+
+    def is_nuclear_acid(self, idx):
+        return len(self.symbol2idx) - idx <= 8
 
     def __len__(self):
         return len(self.symbol2idx)
