@@ -94,3 +94,14 @@ GPU=0 bash execute/finetune_msp.sh ./configs/MSP <pretrained_ckpt>
 # MPP
 GPU=0 PROP=<property (e.g. homo)> bash execute/finetune_qm9.sh ./configs/QM9 <pretrained_ckpt>
 ```
+
+### Evaluation on Downstream Tasks
+
+```
+# LBA
+python -m evaluation.eval_lba --config ./configs/LBA/<split>/test.yaml --ckpt ./ckpts/LBA/<split> --gpu 0
+# MSP
+python -m evaluation.eval_msp --config ./configs/MSP --ckpt ./ckpts/MSP --gpu 0
+# MPP
+python -m evaluation.eval_qm9 --config ./configs/QM9/test.yaml --ckpt ./ckpts/QM9 --gpu 0 dataset.train.property=<prop> dataset.test.property=<prop>
+```
