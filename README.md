@@ -76,6 +76,8 @@ python -m scripts.process_data.process_QM9.py \
 	--using_hydrogen --download
 ```
 
+All preprocessed datasets can be acquired from this [link](https://doi.org/10.6084/m9.figshare.c.8197622).
+
 ### Pretrain on Multi-Domain Dataset
 
 ```python
