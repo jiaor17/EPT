@@ -107,3 +107,23 @@ python -m evaluation.eval_msp --config ./configs/MSP --ckpt ./ckpts/MSP --gpu 0
 # MPP
 python -m evaluation.eval_qm9 --config ./configs/QM9/test.yaml --ckpt ./ckpts/QM9 --gpu 0 dataset.train.property=<prop> dataset.test.property=<prop>
 ```
+
+## Citation
+
+Please consider citing our work if you find it helpful:
+
+```
+@article{jiao2026equivariant,
+  title={An equivariant pretrained transformer for unified 3D molecular representation learning},
+  author={Jiao, Rui and Kong, Xiangzhe and Zhang, Li and Yu, Ziyang and Ren, Fangyuan and Tan, Wenjuan and Huang, Wenbing and Liu, Yang},
+  journal={Nature Communications},
+  year={2026},
+  publisher={Nature Publishing Group UK London}
+}
+```
+
+## Contact
+
+If you have any questions, feel free to reach us at:
+
+Rui Jiao: [jiaor21@mails.tsinghua.edu.cn](mailto:jiaor21@mails.tsinghua.edu.cn)
