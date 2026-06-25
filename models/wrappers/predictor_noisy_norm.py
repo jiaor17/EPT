@@ -216,18 +216,7 @@ class PredictorNNNModel(nn.Module):
         # normalize
         Z, B = graph.unit_pos, graph.block_type
 
-
-
-        # batch_id = torch.zeros_like(segment_ids)  # [Nb]
-        # batch_id[torch.cumsum(lengths, dim=0)[:-1]] = 1
-        # batch_id.cumsum_(dim=0)  # [Nb], item idx in the batch
-
-        # block_id = torch.zeros_like(A) # [Nu]
-        # block_id[torch.cumsum(block_lengths, dim=0)[:-1]] = 1
-        # block_id.cumsum_(dim=0)  # [Nu], block (residue) id of each unit (atom)
-
         batch_size = lengths.shape[0]
-        # normalize
         Z = self.normalize(Z, B, graph.unit2block, graph.batch_ids)
         
         Z, not_global = self.update_global_block(Z, B, graph.unit2block)
@@ -252,18 +241,15 @@ class PredictorNNNModel(nn.Module):
         )
         edges, edge_attr = (edges.T[not_global_edge]).T, edge_attr[not_global_edge]
         unit_repr, block_repr, graph_repr, _ = self.encoder(H_0, Z, block_id, batch_id, edges, edge_attr)
-        # _, _, _, pred_Z = self.encoder(H_0, Z_perturbed, block_id, batch_id, edges, edge_attr)    
-        # block_repr = scatter_sum(unit_repr, block_id, dim=0)
-        # block_repr = F.normalize(block_repr, dim=-1)
-        # pred_energy = scatter_mean(self.energy_ffn(block_repr), batch_id, dim=0).squeeze(-1)
+
+
         if self.agg_type == 'graph':
             pred_energy = self.energy_ffn(graph_repr).squeeze(-1)
         elif self.agg_type == 'block':
             pred_energy = std_conserve_scatter_sum(self.energy_ffn(block_repr), batch_id, dim=0).squeeze(-1)
         elif self.agg_type == 'atom':
             pred_energy = std_conserve_scatter_sum(self.energy_ffn(unit_repr), graph.batch_ids[graph.unit2block], dim=0).squeeze(-1)
-        # pred_noise = (pred_Z - Z_perturbed).view(-1, 1, 3)
-        # loss = self.get_loss(pred_noise, target)
+
         loss = None
 
         if loss is not None:

@@ -221,18 +221,7 @@ class PredictorNNDModel(nn.Module):
         # normalize
         Z, B = graph.unit_pos, graph.block_type
 
-
-
-        # batch_id = torch.zeros_like(segment_ids)  # [Nb]
-        # batch_id[torch.cumsum(lengths, dim=0)[:-1]] = 1
-        # batch_id.cumsum_(dim=0)  # [Nb], item idx in the batch
-
-        # block_id = torch.zeros_like(A) # [Nu]
-        # block_id[torch.cumsum(block_lengths, dim=0)[:-1]] = 1
-        # block_id.cumsum_(dim=0)  # [Nu], block (residue) id of each unit (atom)
-
         batch_size = lengths.shape[0]
-        # normalize
         Z = self.normalize(Z, B, graph.unit2block, graph.batch_ids)
         
         Z, not_global = self.update_global_block(Z, B, graph.unit2block)
